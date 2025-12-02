@@ -1,28 +1,42 @@
 % Problem 1 - long step interior point algorithm
-Q = []; % symmetric PD matrix 
-c = []; % Rn vector
-A = []; % R(m x n) matrix, full row rank
-b = []; % Rm vector
+Q = [4 1 1 1 ; 
+    1 5 2 1;
+    1 2 6 2;
+    1 1 2 7]; % symmetric PD matrix 
+c = [2; -3; 1; -4]; % Rn vector
+A = [1 0 -2 1;
+    0 -2 1 -3]; % R(m x n) matrix, full row rank
+b = [-1; 2]; % Rm vector
 n = length(c);
-[m,] = size(A);
+[m,~] = size(A);
 
 % hyperparamaters
-delta = ;
-eps_max = ;
-eps_min = ;
+delta = 0.05;
+eps_max = 0.95;
+eps_min = 0.1;
 
 % initial vectors
-x = ones(n);
-y = ones(m); 
-z = ones(n);
+x = ones(n,1);
+y = ones(m,1); 
+z = ones(n,1);
 
-ok = TRUE;
 k = 0;
 eps = 0;
 beta = 0;
 h = 0.00001;
+F = inf;
+tol = 1e-6;
 
-while norm(F) < 0.000001
+while true
+    F_un = [ -Q*x - c + A.'*y + z;
+              A*x - b;
+              x .* z ];
+    
+    if norm(F_un) < tol
+        disp('done')
+        break;
+    end
+
     if mod(k,2) == 0
         eps = eps_max;
     else
@@ -31,15 +45,15 @@ while norm(F) < 0.000001
 
     F = [-Q*x - c + A.'*y + z;
         A*x - b;
-        z .* x - tau * ones(n)];
+        z .* x - eps * beta * ones(n,1)]; % minus here?
 
     % Jacobian of F
-    nab_F = [Q, A.', eye(n);
-             A, zeros(m,n), zeros(m,n);
-             diag(z), zeros(n), diag(x)];
+    nab_F = [-Q, A.', eye(n);
+             A, zeros(m,m), zeros(m,n);
+             diag(z), zeros(n,m), diag(x)];
 
     %  ∇F [Δx; Δy; Δz] = -F 
-    delta_vector = nab_F \ F;
+    delta_vector = -nab_F \ F;
 
     dx = delta_vector(1:n);
     dy = delta_vector(n+1:n+m);
@@ -64,12 +78,10 @@ while norm(F) < 0.000001
 
         % check the conditions for N_inf(delta)
         beta_trial = (x_trial' * z_trial) / n;
-        condition = x_trial .* z_trial - beta_trial*delta*ones(n,1);
-
-        if condition >= 0
-            alpha = alpha_trial;  % still inside neighborhood
+        if all(x_trial .' * z_trial >= delta * beta_trial)
+            alpha = alpha_trial;
         else
-            break;     % outside neighborhood
+            break;
         end
     end
 
