@@ -1,18 +1,19 @@
-% Problem 1 - long step interior point algorithm
-Q = [4 1 1 1 ; 
-    1 5 2 1;
-    1 2 6 2;
-    1 1 2 7]; % symmetric PD matrix 
-c = [2; -3; 1; -4]; % Rn vector
-A = [1 0 -2 1;
-    0 -2 1 -3]; % R(m x n) matrix, full row rank
-b = [-1; 2]; % Rm vector
+% Problem 2
+Q = zeros(20);
+%c = [-1.8; -1.4; -1.2; -1; 0; 0; 0]; % Rn vector
+%A = [0 0 6 10 1 0 0;
+%    0 12 8 6 0 1 0;
+%    16 4 2 0 0 0 1]; % R(m x n) matrix, full row rank
+%b = [17600; 21120; 1320]; % Rm vector
+A = A;
+b = b;
+c = c;
 [m,n] = size(A);
 
 % hyperparamaters
-delta = 4;
-eps_max = 0.01;
-eps_min = 0.00000001;
+delta = 0.1;
+eps_max = 0.99;
+eps_min = 0.01;
 
 % initial vectors
 x = ones(n,1);
